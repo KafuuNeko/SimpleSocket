@@ -68,7 +68,7 @@ public:
      * @param address 例如：127.0.0.1
      * @param port 端口号
      */
-    static UDPAddressPtr makeAddress(const std::string& ip, uint16_t port);
+    static UDPAddressPtr makeAddress(std::string_view ip, uint16_t port);
 
     /**
      * @brief 关闭socket
@@ -117,9 +117,9 @@ public:
      * @param data 待发送字符串
      * @param to 接收者地址
      */
-    bool sent(const std::string& data, const UDPAddressPtr& to)
+    bool sent(std::string_view data, const UDPAddressPtr& to)
     {
-        return this->sent(data.begin(), data.end(), to);
+        return this->sent(data.cbegin(), data.cend(), to);
     }
 
     /**
@@ -190,14 +190,14 @@ inline std::unique_ptr<UDP> UDP::instance()
     return std::unique_ptr<UDP>(new UDP());
 }
 
-inline UDP::UDPAddressPtr UDP::makeAddress(const std::string& ip, uint16_t port)
+inline UDP::UDPAddressPtr UDP::makeAddress(std::string_view ip, uint16_t port)
 {
     auto ptr = std::make_unique<UDPAddress>();
     memset(&(ptr->address), 0, sizeof(ptr->address));
 
     ptr->address.sin_family = AF_INET;
     ptr->address.sin_port = ::htons(port);
-    ptr->address.sin_addr.s_addr = ::inet_addr(ip.c_str());
+    ptr->address.sin_addr.s_addr = ::inet_addr(std::string(ip.cbegin(), ip.cend()).c_str());
 
     return ptr;
 }
